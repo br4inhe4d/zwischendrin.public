@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Zwischendrin</title>
+
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Zwischendrin">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#E7E8E3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#16191B" media="(prefers-color-scheme: dark)">
+
+<style>
+  :root{
+    --paper:#E7E8E3;
+    --card:#F4F4F1;
+    --ink:#1E2124;
+    --muted:#6E747A;
+    --rule:#CDCFC8;
+    --accent:#2E4F55;
+    --accent-weak:#2E4F5522;
+    --radius:10px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --paper:#16191B;
+      --card:#1F2326;
+      --ink:#E6E7E4;
+      --muted:#909699;
+      --rule:#32383B;
+      --accent:#7FB0B4;
+      --accent-weak:#7FB0B42A;
+    }
+  }
+
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,"Segoe UI",sans-serif;
+    font-size:16px;line-height:1.45;
+    padding:env(safe-area-inset-top) 0 calc(env(safe-area-inset-bottom) + 44px);
+  }
+  .wrap{max-width:38rem;margin:0 auto;padding:22px 18px 0}
+
+  header{margin-bottom:22px}
+  h1{font-family:"Iowan Old Style",Georgia,serif;font-size:1.6rem;font-weight:600;letter-spacing:-.01em;margin:0 0 2px}
+  .sub{color:var(--muted);font-size:.9rem;margin:0}
+  .count{margin-top:12px;padding-top:10px;border-top:1px solid var(--rule);color:var(--muted);font-size:.85rem}
+
+  .card{background:var(--card);border:1px solid var(--rule);border-radius:var(--radius);padding:14px;margin-bottom:16px}
+
+  textarea{
+    width:100%;border:0;background:transparent;color:var(--ink);
+    font-family:"Iowan Old Style",Georgia,serif;font-size:1.05rem;line-height:1.5;
+    resize:none;min-height:88px;padding:0;margin:0;
+  }
+  textarea:focus{outline:none}
+  textarea::placeholder{color:var(--muted);opacity:.75}
+
+  .field-label{font-size:.78rem;color:var(--muted);margin:14px 0 6px}
+
+  .scale{display:flex;gap:4px}
+  .scale button{
+    flex:1;min-width:0;height:38px;padding:0;
+    border:1px solid var(--rule);border-radius:6px;background:transparent;
+    color:var(--muted);font:inherit;font-size:.8rem;cursor:pointer;
+  }
+  .scale button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--card);font-weight:600}
+  .scale-ends{display:flex;justify-content:space-between;color:var(--muted);font-size:.72rem;margin-top:5px}
+
+  .tags{display:flex;flex-wrap:wrap;gap:6px}
+  .tags button{
+    border:1px solid var(--rule);border-radius:999px;background:transparent;
+    color:var(--muted);font:inherit;font-size:.82rem;padding:5px 11px;cursor:pointer;
+  }
+  .tags button[aria-pressed="true"]{background:var(--accent-weak);border-color:var(--accent);color:var(--accent)}
+
+  .save{
+    width:100%;margin-top:16px;padding:13px;border:0;border-radius:8px;
+    background:var(--accent);color:var(--card);font:inherit;font-size:1rem;font-weight:600;cursor:pointer;
+  }
+  .save:disabled{opacity:.4}
+
+  .bar{display:flex;gap:8px;margin-bottom:12px}
+  .bar button{
+    flex:1;padding:9px 8px;border:1px solid var(--rule);border-radius:8px;
+    background:transparent;color:var(--ink);font:inherit;font-size:.85rem;cursor:pointer;
+  }
+
+  .minor{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:22px}
+  .minor button{
+    border:0;background:transparent;padding:0;color:var(--muted);
+    font:inherit;font-size:.8rem;text-decoration:underline;text-underline-offset:3px;cursor:pointer;
+  }
+
+  .divider{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:.78rem;margin:0 0 12px}
+  .divider::after{content:"";flex:1;height:1px;background:var(--rule)}
+
+  .entry{padding:13px 0;border-bottom:1px solid var(--rule);position:relative}
+  .entry:last-child{border-bottom:0}
+  .meta{display:flex;align-items:center;gap:9px;color:var(--muted);font-size:.78rem;margin-bottom:4px}
+  .pill{background:var(--accent-weak);color:var(--accent);border-radius:4px;padding:1px 6px;font-weight:600;font-size:.75rem}
+  .text{font-family:"Iowan Old Style",Georgia,serif;font-size:1.02rem;white-space:pre-wrap;margin:0}
+  .etags{color:var(--muted);font-size:.78rem;margin-top:5px}
+  .del{
+    position:absolute;top:9px;right:-4px;border:0;background:transparent;
+    color:var(--muted);font:inherit;font-size:1.1rem;line-height:1;padding:6px 10px;cursor:pointer;
+  }
+  .marker{color:var(--muted);font-size:.75rem;padding:9px 0;border-bottom:1px solid var(--rule)}
+
+  .empty{color:var(--muted);font-size:.92rem;padding:6px 0 0}
+  .toast{
+    position:fixed;left:50%;bottom:26px;transform:translateX(-50%);
+    background:var(--ink);color:var(--paper);padding:9px 16px;border-radius:999px;
+    font-size:.85rem;opacity:0;pointer-events:none;transition:opacity .18s;
+  }
+  .toast.on{opacity:1}
+  @media (prefers-reduced-motion:reduce){.toast{transition:none}}
+
+  #file{display:none}
+  .printhead{display:none}
+
+  @media print{
+    :root{--paper:#fff;--card:#fff;--ink:#000;--muted:#555;--rule:#bbb;--accent:#000;--accent-weak:#eee}
+    body{background:#fff;font-size:11pt}
+    .card,.bar,.minor,.count,.del,.toast,.sub,h1{display:none}
+    .printhead{display:block;margin-bottom:14px}
+    .printhead h2{font-family:"Iowan Old Style",Georgia,serif;font-size:15pt;margin:0 0 3px}
+    .printhead p{color:#555;font-size:9pt;margin:0}
+    .wrap{padding:0;max-width:none}
+    .entry{break-inside:avoid;page-break-inside:avoid}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>Zwischendrin</h1>
+    <p class="sub">Kurz festhalten, was gerade los ist. Stichworte reichen.</p>
+    <p class="count" id="count"></p>
+  </header>
+
+  <div class="printhead">
+    <h2>Notizen zwischen den Sitzungen</h2>
+    <p id="printrange"></p>
+  </div>
+
+  <div class="card">
+    <textarea id="text" rows="4" placeholder="Was ist gerade los?"></textarea>
+
+    <p class="field-label">Wie stark belastet es dich? (optional)</p>
+    <div class="scale" id="scale"></div>
+    <div class="scale-ends"><span>kaum</span><span>sehr stark</span></div>
+
+    <p class="field-label">Wobei? (optional)</p>
+    <div class="tags" id="tags"></div>
+
+    <button class="save" id="save" disabled>Eintrag sichern</button>
+  </div>
+
+  <div class="bar">
+    <button id="print">Drucken</button>
+    <button id="session">Termin war</button>
+  </div>
+
+  <div class="minor">
+    <button id="copy">Als Text kopieren</button>
+    <button id="backup">Sicherung erstellen</button>
+    <button id="restore">Sicherung laden</button>
+  </div>
+  <input type="file" id="file" accept="application/json,.json">
+
+  <p class="divider" id="listhead">Bisher</p>
+  <div id="list"></div>
+
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  var KEY  = "zwischendrin.v1";
+  var TAGS = ["Arbeit","Zuhause","Schlaf","Grübeln","Unruhe","Körper"];
+
+  /* Speicher: window.storage falls vorhanden, sonst localStorage */
+  var store = {
+    read: async function(){
+      if (window.storage && window.storage.get){
+        try { var r = await window.storage.get(KEY); return r ? r.value : null; } catch(e){ return null; }
+      }
+      try { return window.localStorage.getItem(KEY); } catch(e){ return null; }
+    },
+    write: async function(str){
+      if (window.storage && window.storage.set){
+        try { await window.storage.set(KEY, str); return true; } catch(e){ return false; }
+      }
+      try { window.localStorage.setItem(KEY, str); return true; } catch(e){ return false; }
+    }
+  };
+
+  var state = { entries: [], lastSession: null, draft: { text:"", level:null, tags:[] } };
+
+  var $ = function(id){ return document.getElementById(id); };
+  var elText=$("text"), elScale=$("scale"), elTags=$("tags"), elSave=$("save"),
+      elList=$("list"), elCount=$("count"), elToast=$("toast"),
+      elListhead=$("listhead"), elRange=$("printrange"), elFile=$("file");
+
+  function toast(msg){
+    elToast.textContent = msg;
+    elToast.classList.add("on");
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function(){ elToast.classList.remove("on"); }, 1800);
+  }
+
+  var save = (function(){
+    var t;
+    return function(now){
+      clearTimeout(t);
+      var run = function(){ store.write(JSON.stringify(state)); };
+      if (now) run(); else t = setTimeout(run, 400);
+    };
+  })();
+
+  var WD = ["So","Mo","Di","Mi","Do","Fr","Sa"];
+  function pad(n){ return n < 10 ? "0"+n : ""+n; }
+  function fmt(iso){
+    var d = new Date(iso);
+    return WD[d.getDay()]+", "+d.getDate()+"."+(d.getMonth()+1)+"."+d.getFullYear()
+         +" · "+pad(d.getHours())+":"+pad(d.getMinutes());
+  }
+  function fmtShort(iso){
+    var d = new Date(iso);
+    return d.getDate()+"."+(d.getMonth()+1)+"."+d.getFullYear();
+  }
+
+  /* Eingabe */
+  for (var i = 1; i <= 10; i++){
+    (function(n){
+      var b = document.createElement("button");
+      b.type = "button"; b.textContent = n;
+      b.setAttribute("aria-pressed","false");
+      b.setAttribute("aria-label","Belastung "+n+" von 10");
+      b.onclick = function(){
+        state.draft.level = (state.draft.level === n) ? null : n;
+        paintDraft(); save();
+      };
+      elScale.appendChild(b);
+    })(i);
+  }
+
+  TAGS.forEach(function(name){
+    var b = document.createElement("button");
+    b.type = "button"; b.textContent = name;
+    b.setAttribute("aria-pressed","false");
+    b.onclick = function(){
+      var k = state.draft.tags.indexOf(name);
+      if (k === -1) state.draft.tags.push(name); else state.draft.tags.splice(k,1);
+      paintDraft(); save();
+    };
+    elTags.appendChild(b);
+  });
+
+  function autogrow(){
+    elText.style.height = "auto";
+    elText.style.height = Math.max(88, elText.scrollHeight) + "px";
+  }
+
+  elText.addEventListener("input", function(){
+    state.draft.text = elText.value;
+    autogrow(); paintDraft(); save();
+  });
+
+  function paintDraft(){
+    var sb = elScale.children;
+    for (var i = 0; i < sb.length; i++){
+      sb[i].setAttribute("aria-pressed", state.draft.level === i+1 ? "true" : "false");
+    }
+    var tb = elTags.children;
+    for (var j = 0; j < tb.length; j++){
+      tb[j].setAttribute("aria-pressed", state.draft.tags.indexOf(tb[j].textContent) !== -1 ? "true" : "false");
+    }
+    elSave.disabled = !elText.value.trim();
+  }
+
+  elSave.onclick = function(){
+    var t = elText.value.trim();
+    if (!t) return;
+    state.entries.unshift({
+      id: Date.now(),
+      at: new Date().toISOString(),
+      text: t,
+      level: state.draft.level,
+      tags: state.draft.tags.slice()
+    });
+    state.draft = { text:"", level:null, tags:[] };
+    elText.value = "";
+    autogrow(); paintDraft(); render(); save(true);
+    toast("Gesichert");
+    elText.blur();
+  };
+
+  function remove(id){
+    if (!confirm("Diesen Eintrag löschen?")) return;
+    state.entries = state.entries.filter(function(e){ return e.id !== id; });
+    render(); save(true);
+  }
+
+  $("session").onclick = function(){
+    if (!confirm("Termin als erledigt markieren? Die Zählung startet dann neu.")) return;
+    state.lastSession = new Date().toISOString();
+    render(); save(true);
+    toast("Notiert");
+  };
+
+  $("print").onclick = function(){
+    elRange.textContent = "Stand " + fmtShort(new Date().toISOString())
+      + (state.entries.length ? " · " + state.entries.length + " Einträge" : "");
+    window.print();
+  };
+
+  function asText(){
+    var lines = state.entries.slice().reverse().map(function(e){
+      var head = fmt(e.at) + (e.level ? "  [" + e.level + "/10]" : "");
+      var tail = (e.tags && e.tags.length) ? "\n(" + e.tags.join(", ") + ")" : "";
+      return head + "\n" + e.text + tail;
+    });
+    return "Notizen zwischen den Sitzungen\n\n" + lines.join("\n\n");
+  }
+
+  $("copy").onclick = async function(){
+    if (!state.entries.length){ toast("Noch nichts da"); return; }
+    try { await navigator.clipboard.writeText(asText()); toast("Kopiert"); }
+    catch(err){ elText.value = asText(); autogrow(); paintDraft(); toast("Ins Feld gelegt – von Hand kopieren"); }
+  };
+
+  /* Sicherung */
+  $("backup").onclick = async function(){
+    if (!state.entries.length){ toast("Noch nichts zu sichern"); return; }
+    var name = "zwischendrin-" + new Date().toISOString().slice(0,10) + ".json";
+    var json = JSON.stringify({ entries: state.entries, lastSession: state.lastSession }, null, 2);
+    try {
+      var file = new File([json], name, { type: "application/json" });
+      if (navigator.canShare && navigator.canShare({ files:[file] })){
+        await navigator.share({ files:[file], title:"Zwischendrin – Sicherung" });
+        return;
+      }
+    } catch(e){ if (e && e.name === "AbortError") return; }
+    try {
+      var url = URL.createObjectURL(new Blob([json], { type:"application/json" }));
+      var a = document.createElement("a");
+      a.href = url; a.download = name; document.body.appendChild(a); a.click();
+      document.body.removeChild(a);
+      setTimeout(function(){ URL.revokeObjectURL(url); }, 1500);
+      toast("Sicherung erstellt");
+    } catch(e2){ toast("Sicherung fehlgeschlagen"); }
+  };
+
+  $("restore").onclick = function(){ elFile.click(); };
+
+  elFile.onchange = function(){
+    var f = elFile.files && elFile.files[0];
+    if (!f) return;
+    var r = new FileReader();
+    r.onload = function(){
+      var data;
+      try { data = JSON.parse(r.result); } catch(e){ toast("Datei nicht lesbar"); return; }
+      if (!data || !Array.isArray(data.entries)){ toast("Keine gültige Sicherung"); return; }
+      var seen = {};
+      state.entries.forEach(function(e){ seen[e.id] = true; });
+      var added = 0;
+      data.entries.forEach(function(e){
+        if (!seen[e.id]){ state.entries.push(e); added++; }
+      });
+      state.entries.sort(function(a,b){ return a.at < b.at ? 1 : -1; });
+      if (!state.lastSession && data.lastSession) state.lastSession = data.lastSession;
+      render(); save(true);
+      toast(added ? added + " Einträge ergänzt" : "Nichts Neues dabei");
+    };
+    r.readAsText(f);
+    elFile.value = "";
+  };
+
+  /* Anzeige */
+  function render(){
+    var since = state.lastSession
+      ? state.entries.filter(function(e){ return e.at > state.lastSession; }).length
+      : state.entries.length;
+
+    if (!state.entries.length){
+      elCount.textContent = "Noch keine Einträge.";
+    } else if (state.lastSession){
+      elCount.textContent = (since === 1 ? "1 Eintrag" : since + " Einträge")
+        + " seit dem letzten Termin am " + fmtShort(state.lastSession) + ".";
+    } else {
+      elCount.textContent = (state.entries.length === 1 ? "1 Eintrag" : state.entries.length + " Einträge")
+        + " festgehalten.";
+    }
+
+    elList.innerHTML = "";
+    if (!state.entries.length){
+      var p = document.createElement("p");
+      p.className = "empty";
+      p.textContent = "Wenn dich etwas trifft, schreib drei Worte rein. Der Rest kommt beim Lesen von selbst zurück.";
+      elList.appendChild(p);
+      elListhead.style.display = "none";
+      return;
+    }
+    elListhead.style.display = "";
+
+    var markerDone = false;
+    state.entries.forEach(function(e){
+      if (state.lastSession && !markerDone && e.at <= state.lastSession){
+        markerDone = true;
+        var m = document.createElement("div");
+        m.className = "marker";
+        m.textContent = "— Termin am " + fmtShort(state.lastSession) + " —";
+        elList.appendChild(m);
+      }
+
+      var d = document.createElement("div");
+      d.className = "entry";
+
+      var meta = document.createElement("div");
+      meta.className = "meta";
+      var when = document.createElement("span");
+      when.textContent = fmt(e.at);
+      meta.appendChild(when);
+      if (e.level){
+        var pill = document.createElement("span");
+        pill.className = "pill";
+        pill.textContent = e.level + "/10";
+        meta.appendChild(pill);
+      }
+      d.appendChild(meta);
+
+      var tx = document.createElement("p");
+      tx.className = "text";
+      tx.textContent = e.text;
+      d.appendChild(tx);
+
+      if (e.tags && e.tags.length){
+        var tg = document.createElement("div");
+        tg.className = "etags";
+        tg.textContent = e.tags.join(" · ");
+        d.appendChild(tg);
+      }
+
+      var del = document.createElement("button");
+      del.className = "del"; del.type = "button"; del.textContent = "×";
+      del.setAttribute("aria-label","Eintrag löschen");
+      del.onclick = function(){ remove(e.id); };
+      d.appendChild(del);
+
+      elList.appendChild(d);
+    });
+  }
+
+  /* Start */
+  (async function init(){
+    var raw = await store.read();
+    if (raw){
+      try {
+        var loaded = JSON.parse(raw);
+        if (loaded && Array.isArray(loaded.entries)) state = loaded;
+        if (!state.draft) state.draft = { text:"", level:null, tags:[] };
+      } catch(e){}
+    }
+    elText.value = state.draft.text || "";
+    autogrow(); paintDraft(); render();
+
+    if ("serviceWorker" in navigator && location.protocol === "https:"){
+      try { navigator.serviceWorker.register("sw.js"); } catch(e){}
+    }
+  })();
+
+})();
+</script>
+</body>
+</html>
